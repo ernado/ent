@@ -26,6 +26,25 @@ func HasKey(column string, opts ...Option) *sql.Predicate {
 	})
 }
 
+// ValueContains return a predicate for checking that a JSON
+// value (returned by the path) contains the given argument.
+//
+//	sqljson.ValueContains("a", 1, sqljson.Path("b"))
+//
+func ValueContains(column string, arg interface{}, opts ...Option) *sql.Predicate {
+	return sql.P(func(b *sql.Builder) {
+		switch b.Dialect() {
+		case dialect.MySQL:
+			// select * from <Table> where JSON_SEARCH(c, 'one', "<Value>", "$.<Path>") IS NOT NULL;
+		case dialect.SQLite:
+			// Use json_each.
+		case dialect.Postgres:
+			// opts, arg = normalizePG(b, arg, opts)
+			// SELECT * FROM <Table> WHERE "c"::jsonb @> '<Value>';
+		}
+	})
+}
+
 // ValueEQ return a predicate for checking that a JSON value
 // (returned by the path) is equal to the given argument.
 //
